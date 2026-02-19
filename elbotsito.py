@@ -7,9 +7,9 @@ import time
 # ============================================
 #  PEGA TU NUEVO TOKEN AQUÍ (del @BotFather)
 # ============================================
-TOKEN = "8284166238:AAHUle0r4GpssSe2P67yvwPxkEv5E_4xAcI"  
+TOKEN = "8284166238:AAHP18lV3q7u-dQJ7bAJ5LZvI2pEOdyBVDQ"  
 
-DB_FILE = "videos.json"
+DB_FILE = "videos1.json"
 
 bot = telebot.TeleBot(TOKEN)
 
@@ -105,3 +105,4 @@ if GRUPO_ID != --1003801451783:
 
 
 bot.infinity_polling()
+
