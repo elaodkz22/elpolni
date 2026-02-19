@@ -97,10 +97,11 @@ print("Bot iniciado...")
 
 # Este es el ID de tu grupo (debes cambiarlo)
 # Para obtenerlo, agrega @userinfobot a tu grupo y te dará el ID
-GRUPO_ID = -100XXXXXXXXX  # <-- CAMBIA ESTO
+GRUPO_ID = --1003801451783  # <-- CAMBIA ESTO
 
 # Cargar historial al iniciar (solo si tienes el ID correcto)
-if GRUPO_ID != -100XXXXXXXXX:
+if GRUPO_ID != --1003801451783:
     fetch_history(GRUPO_ID, limit=500)
+
 
 bot.infinity_polling()
