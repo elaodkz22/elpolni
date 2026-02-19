@@ -2,14 +2,13 @@ import telebot
 import random
 import json
 import os
-import time
 
 # ============================================
-#  PEGA TU NUEVO TOKEN AQUÍ (del @BotFather)
+#  PEGA TU NUEVO TOKEN AQUÍ
 # ============================================
-TOKEN = "8284166238:AAHP18lV3q7u-dQJ7bAJ5LZvI2pEOdyBVDQ"  
+TOKEN = "8284166238:AAHP18lV3q7u-dQJ7bAJ5LZvI2pEOdyBVDQ"
 
-DB_FILE = "videos1.json"
+DB_FILE = "videos.json"
 
 bot = telebot.TeleBot(TOKEN)
 
@@ -39,22 +38,19 @@ def get_random_video():
         return None
     return random.choice(videos)
 
-# --- Leer historial del grupo ---
-def fetch_history(chat_id, limit=1000):
-    print(f"Buscando videos en el historial...")
+# --- Leer historial ---
+def fetch_history(chat_id):
     try:
-        videos_found = 0
-        # get_chat_history devuelve un generador, necesitamos iterar
-        messages = bot.get_chat_history(chat_id, limit=limit)
-        
-        for msg in messages:
+        count = 0
+        for msg in bot.get_chat_history(chat_id, limit=100):
             if msg.video:
                 save_video(msg.video.file_id)
-                videos_found += 1
-        
-        print(f"Se encontraron {videos_found} videos en el historial.")
+                count += 1
+        print(f"Se encontraron {count} videos")
+        return count
     except Exception as e:
-        print(f"Error al leer historial: {e}")
+        print(f"Error: {e}")
+        return 0
 
 # --- Detectar videos nuevos ---
 @bot.message_handler(content_types=['video'])
@@ -62,47 +58,32 @@ def handle_video(message):
     if message.chat.type in ['group', 'supergroup']:
         try:
             save_video(message.video.file_id)
-            print(f"Nuevo video detectado y guardado")
-        except Exception as e:
-            print(f"Error: {e}")
+        except:
+            pass
 
 # --- Comando /video y /videos ---
 @bot.message_handler(commands=['video', 'videos'])
 def send_random_video(message):
     video_id = get_random_video()
     if video_id:
-        try:
-            bot.send_video(message.chat.id, video_id)
-        except Exception as e:
-            bot.reply_to(message, f"❌ Error al enviar video: {str(e)}")
+        bot.send_video(message.chat.id, video_id)
     else:
-        bot.reply_to(message, "❌ No encontré videos aún. Envía algunos videos al grupo!")
+        bot.reply_to(message, "❌ No hay videos. Envía uno al grupo!")
+
+# --- Comando /historial ---
+@bot.message_handler(commands=['historial'])
+def cmd_historial(message):
+    try:
+        count = fetch_history(message.chat.id)
+        bot.reply_to(message, f"✅ Se encontraron {count} videos!")
+    except Exception as e:
+        bot.reply_to(message, f"❌ Error: {e}")
 
 # --- Comando /start ---
 @bot.message_handler(commands=['start'])
-def send_welcome(message):
-    bot.reply_to(message, "🎬 Bot activo! Escribe /video o /videos para ver un video aleatorio del grupo.")
+def cmd_start(message):
+    bot.reply_to(message, "🎬 Bot listo! /video para ver un video aleatorio.")
 
-# --- Comando /actualizar (para recargar historial) ---
-@bot.message_handler(commands=['actualizar', 'reload'])
-def update_history(message):
-    try:
-        fetch_history(message.chat.id, limit=500)
-        bot.reply_to(message, "✅ Historial actualizado!")
-    except Exception as e:
-        bot.reply_to(message, f"❌ Error: {str(e)}")
-
-# --- Iniciar bot ---
+# --- Iniciar ---
 print("Bot iniciado...")
-
-# Este es el ID de tu grupo (debes cambiarlo)
-# Para obtenerlo, agrega @userinfobot a tu grupo y te dará el ID
-GRUPO_ID = --1003801451783  # <-- CAMBIA ESTO
-
-# Cargar historial al iniciar (solo si tienes el ID correcto)
-if GRUPO_ID != --1003801451783:
-    fetch_history(GRUPO_ID, limit=500)
-
-
 bot.infinity_polling()
-
